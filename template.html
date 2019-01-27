@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<title>APSIS unused resources report</title>
+      <meta charset="UTF-8">
+      <style>
+          .red_dot {
+            height: 25px;
+            width: 25px;
+            background-color: #f00;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .green_dot {
+            height: 25px;
+            width: 25px;
+            background-color: #0f0;
+            border-radius: 50%;
+            display: inline-block;
+        }
+      </style>
+      
+	</head>
+	<body>
+        Status Page
+		<table border=1>
+		    <tr>
+		    	<td>Status</td><td>host</td>
+            </tr>
+            {% for host in hosts %}
+                <tr>
+                    {% if host.status%}
+                        <td> <span class="green_dot"> </span> </td> <td> {{ host.url }} </td>
+                    {% endif %}
+                    {% if !host.status%}
+                        <td> <span class="red_dot"> </span> </td> <td> {{ host.url }} </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+		</table>
+
+    </body>
+    
+
+        {% if True %}
+        yay
+    {% endif %}
