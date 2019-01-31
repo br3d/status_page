@@ -30,17 +30,13 @@
                 <tr>
                     {% if host.status%}
                         <td> <span class="green_dot"> </span> </td> <td> {{ host.url }} </td>
-                    {% endif %}
-                    {% if !host.status%}
+                    {% else %}
                         <td> <span class="red_dot"> </span> </td> <td> {{ host.url }} </td>
                     {% endif %}
                 </tr>
             {% endfor %}
-		</table>
+        </table>
+        <br>
+        Page was generated at {{ gtime }}
 
     </body>
-    
-
-        {% if True %}
-        yay
-    {% endif %}

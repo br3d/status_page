@@ -3,13 +3,15 @@
 
 # import requests, boto3
 from jinja2 import Template
+import time
 
 # namespace = 'status'
 # name_purpose = 'github.com'
 # url = 'https://github.com'
 # aws_region = 'eu-west-1'
 
-# status_template = 'template.html'
+report_name = 'index.html'
+status_template = 'template.html'
 
 
 # def cw_report(namespace, name, val):
@@ -37,15 +39,26 @@ from jinja2 import Template
 
 
 
-def make_statuspage():
+def make_statuspage(allhosts, dtime):
 	template = Template(open(status_template,'r').read())
-	return (template.render(allhosts = allhosts)
+	return template.render(hosts = allhosts, gtime = dtime )
 	
 def write_status_page(body):
-	f = open(report_name,'rb+')
-	f.write(bytes(body, 'UTF-8'))
+	f = open(report_name,'w+')
+	f.write(body)
 	f.close
 
+def time_now():
+	return time.strftime("%Y-%m-%d %H:%M")
+
+class hosto():
+	status = True
+	url = ''
+
+
+host1 = hosto()
+host2 = hosto()
+host3 = hosto()
 host1.status = False
 host1.url = 'http://falsecheck.ru'
 host2.status = True
@@ -55,5 +68,5 @@ host3.url = 'http://truetruecheck.ru'
 
 
 allhosts = [host1,host2,host3]
-
-write_status_page(make_statuspage())
+# print(make_statuspage(allhosts))
+write_status_page(make_statuspage(allhosts, time_now()))
