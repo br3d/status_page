@@ -1,0 +1,273 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Template for lambda prober",
+  "Parameters": {
+    "Env": {
+      "Type": "String",
+      "Default": "stage",
+      "Description": "Environment"
+    },
+    "FileName": {
+      "Type": "String",
+      "Default": "prober.py.zip",
+      "Description": "Code file name"
+    },
+    "SiteList": {
+      "Type": "String",
+      "Default": "keencode.net",
+      "Description": "Site list separated by semicolon"
+    },
+    "BucketName": {
+      "Type": "String",
+      "Default": "cloudformation-uploads",
+      "Description": "S3 bucket name for code"
+    },
+    "BucketForStatusPage": {
+      "Type": "String",
+      "Default": "Prober",
+      "Description": "S3 bucket name for status page"
+    }
+  },
+  "Resources": {
+    "LambdaServiceExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": ["sts:AssumeRole"],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": ["lambda.amazonaws.com"]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Path": "/"
+      }
+    },
+    "LambdaServiceExecutionRolePolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "LambdaProberPolePolicy",
+        "Roles": [
+          {
+            "Ref": "LambdaServiceExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "PutMetrics",
+              "Effect": "Allow",
+              "Action": "cloudwatch:PutMetricData",
+              "Resource": "*"
+            },
+            {
+              "Sid": "PutLogs",
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:CreateLogStream"
+              ],
+              "Resource": [
+                "arn:aws:logs:eu-west-1:*:log-group:/aws/lambda/Prober:*"
+              ]
+            },
+            {
+              "Sid": "ListAllBuckets",
+              "Effect": "Allow",
+              "Action": ["s3:ListBucket"],
+              "Resource": "*"
+            },
+            {
+              "Sid": "BucketAccess",
+              "Effect": "Allow",
+              "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:aws:s3:::${BucketName}-${AWS::AccountId}/${AWS::StackName}/*"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "ScheduledEvent": {
+      "Properties": {
+        "Description": "CloudWatch event to trigger lambda SG function",
+        "ScheduleExpression": "rate(5 minutes)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": ["LambdaProber", "Arn"]
+            },
+            "Id": "Prober"
+          }
+        ]
+      },
+      "Type": "AWS::Events::Rule"
+    },
+    "LambdaInvokePermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": ["LambdaProber", "Arn"]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": ["ScheduledEvent", "Arn"]
+        }
+      }
+    },
+    "LambdaProber": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Join": [
+              "-",
+              [
+                {
+                  "Ref": "BucketName"
+                },
+                {
+                  "Ref": "AWS::AccountId"
+                }
+              ]
+            ]
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "/",
+              [
+                {
+                  "Ref": "AWS::StackName"
+                },
+                {
+                  "Ref": "FileName"
+                }
+              ]
+            ]
+          }
+        },
+        "Handler": "prober.lambda_handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": ["LambdaServiceExecutionRole", "Arn"]
+        },
+        "Runtime": "python3.7",
+        "Timeout": 300,
+        "Environment": {
+          "Variables": {
+            "SiteList": {
+              "Ref": "SiteList"
+            },
+            "Env": {
+              "Ref": "Env"
+            },
+            "Bucket": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Fn::GetAtt": ["S3ProberStatusPage", "DomainName"]
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ProberLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "LambdaProber"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 30
+      }
+    },
+    "S3ProberStatusPage": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "WebsiteConfiguration": {
+          "IndexDocument": "index.html",
+          "ErrorDocument": "error.html"
+        }
+      },
+      "DeletionPolicy": "Delete"
+    },
+    "BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Id": "S3ProberStatusPagePolicy",
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "PublicReadForGetBucketObjects",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:GetObject",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "S3ProberStatusPage"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        "Bucket": {
+          "Ref": "S3ProberStatusPage"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "WebsiteURL": {
+      "Value": {
+        "Fn::GetAtt": ["S3ProberStatusPage", "WebsiteURL"]
+      },
+      "Description": "URL for website hosted on S3"
+    },
+    "S3BucketSecureURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Fn::GetAtt": ["S3ProberStatusPage", "DomainName"]
+            }
+          ]
+        ]
+      },
+      "Description": "Name of S3 bucket to hold website content"
+    }
+  }
+}

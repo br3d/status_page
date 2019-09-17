@@ -1,0 +1,42 @@
+{
+    "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "PutMetrics",
+                "Effect": "Allow",
+                "Action": "cloudwatch:PutMetricData",
+                "Resource": "*"
+            },
+            {
+                "Sid": "PutLogs",
+                "Effect": "Allow",
+                "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:CreateLogStream"
+                ],
+                "Resource": [
+                    "arn:aws:logs:eu-west-1:*:log-group:/aws/lambda/Prober:*"
+                ]
+            },
+            {
+                "Sid": "ListAllBuckets",
+                "Effect": "Allow",
+                "Action": ["s3:ListBucket"],
+                "Resource": ["arn:aws:s3:::test"]
+            },
+            {
+                "Sid": "BucketAccess",
+                "Effect": "Allow",
+                "Action": [
+                  "s3:PutObject",
+                  "s3:GetObject",
+                  "s3:DeleteObject"
+                ],
+                "Resource": ["arn:aws:s3:::Prober/*"]
+              }
+
+        ]
+    }
+}
