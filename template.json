@@ -89,7 +89,17 @@
               "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
               "Resource": [
                 {
-                  "Fn::Sub": "arn:aws:s3:::${BucketName}-${AWS::AccountId}/${AWS::StackName}/*"
+                  "Fn::Sub": "arn:aws:s3:::${BucketName}-${AWS::AccountId}/${AWS::StackName}/*",
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "S3ProberStatusPage"
+                      },
+                      "/*"
+                    ]
+                  ]
                 }
               ]
             }

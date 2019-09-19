@@ -42,6 +42,13 @@ def check_status(url):
     return response
 
 
+# Write html page to S3
+def write_page(bucket, data):
+    s3 = boto3.client('s3')
+    # s3.upload_fileobj(data, bucket, 'index.html')
+    s3.put_object(Body=data, Bucket=bucket, Key='index.html')
+
+
 def check_successful(response):
     if response.status_code == 200:
         return True
@@ -77,3 +84,4 @@ def lambda_handler(var, var2):
         result_list.append(item)
     # generate status page
     print(make_statuspage(result_list, time_now()))
+    write_page('lambdastatuscheck-s3proberstatuspage-1mvu2bntjqk94.s3.amazonaws.com', make_statuspage(result_list, time_now()))
