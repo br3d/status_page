@@ -30,7 +30,7 @@ aws s3 cp prober.py.zip s3://$CLOUD_FORMATION_RESOURCE_UPLOAD_BUCKET_NAME/$STACK
 echo "Create change set: $CHANGE_SET_NAME"
 aws cloudformation create-change-set \
     --change-set-name $CHANGE_SET_NAME \
-	--change-set-type $CHANGE_SET_TYPE \
+    --change-set-type $CHANGE_SET_TYPE \
     --profile $AWS_PROFILE_NAME \
     --region $AWS_REGION \
     --stack-name $STACK_NAME \
