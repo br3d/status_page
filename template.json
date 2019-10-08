@@ -90,7 +90,7 @@
               "Resource": [
                 {
                   "Fn::Sub": "arn:aws:s3:::${CloudFormationBucketName}-${AWS::AccountId}/${AWS::StackName}/*",
-                  "Fn::Sub": "arn:aws:s3:::${S3ProberStatusPage}-${AWS::AccountId}/*"
+                  "Fn::Sub": "arn:aws:s3:::${S3ProberStatusPage}/*"
                 }
               ]
             }
@@ -174,15 +174,7 @@
               "Ref": "Env"
             },
             "Bucket": {
-              "Fn::Join": [
-                "",
-                [
-                  "https://",
-                  {
-                    "Fn::GetAtt": ["S3ProberStatusPage", "DomainName"]
-                  }
-                ]
-              ]
+              "Ref": "S3ProberStatusPage"
             }
           }
         }
