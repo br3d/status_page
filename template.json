@@ -17,14 +17,14 @@
       "Default": "keencode.net",
       "Description": "Site list separated by semicolon"
     },
-    "BucketName": {
+    "CloudFormationBucketName": {
       "Type": "String",
       "Default": "cloudformation-uploads",
       "Description": "S3 bucket name for code"
     },
-    "BucketForStatusPage": {
+    "StatusPageBucketName": {
       "Type": "String",
-      "Default": "Prober",
+      "Default": "prober",
       "Description": "S3 bucket name for status page"
     }
   },
@@ -89,17 +89,8 @@
               "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
               "Resource": [
                 {
-                  "Fn::Sub": "arn:aws:s3:::${BucketName}-${AWS::AccountId}/${AWS::StackName}/*",
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:s3:::",
-                      {
-                        "Ref": "S3ProberStatusPage"
-                      },
-                      "/*"
-                    ]
-                  ]
+                  "Fn::Sub": "arn:aws:s3:::${CloudFormationBucketName}-${AWS::AccountId}/${AWS::StackName}/*",
+                  "Fn::Sub": "arn:aws:s3:::${S3ProberStatusPage}-${AWS::AccountId}/*"
                 }
               ]
             }
@@ -145,7 +136,7 @@
               "-",
               [
                 {
-                  "Ref": "BucketName"
+                  "Ref": "CloudFormationBucketName"
                 },
                 {
                   "Ref": "AWS::AccountId"
@@ -217,6 +208,10 @@
     "S3ProberStatusPage": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
+        "BucketName":
+          {
+            "Fn::Sub": "${StatusPageBucketName}-${AWS::AccountId}"
+          },
         "AccessControl": "PublicRead",
         "WebsiteConfiguration": {
           "IndexDocument": "index.html",
