@@ -48,7 +48,8 @@ def check_status(url):
 def write_page(bucket, data):
     s3 = boto3.client('s3')
     # s3.upload_fileobj(data, bucket, 'index.html')
-    s3.put_object(Body=data, Bucket=bucket, Key='index.html')
+    s3.put_object(Body=data, Bucket=bucket, Key='index.html',
+                  ContentType='text/html; charset=utf-8')
 
 
 def check_successful(response):
