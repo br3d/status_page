@@ -5,6 +5,7 @@ import requests
 import boto3
 from jinja2 import Template
 import time
+import os
 
 cw_namespace = 'status'
 purpose_list = {'github.com': 'https://github.com',
@@ -15,6 +16,7 @@ aws_region = 'eu-west-1'
 
 report_name = 'index.html'
 status_template = 'static/template.html'
+report_bucket = os.environ['Bucket']
 
 
 class host_o():
@@ -55,6 +57,7 @@ def check_successful(response):
     else:
         return False
 
+
 def make_statuspage(allhosts, dtime):
     template = Template(open(status_template, 'r').read())
     return template.render(hosts=allhosts, gtime=dtime)
@@ -84,4 +87,4 @@ def lambda_handler(var, var2):
         result_list.append(item)
     # generate status page
     print(make_statuspage(result_list, time_now()))
-    write_page('lambdastatuscheck-s3proberstatuspage-1mvu2bntjqk94.s3.amazonaws.com', make_statuspage(result_list, time_now()))
+    write_page(report_bucket, make_statuspage(result_list, time_now()))
