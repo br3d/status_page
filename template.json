@@ -14,7 +14,7 @@
     },
     "SiteList": {
       "Type": "String",
-      "Default": "keencode.net",
+      "Default": "github.com",
       "Description": "Site list separated by semicolon"
     },
     "CloudFormationBucketName": {

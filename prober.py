@@ -9,7 +9,7 @@ import os
 
 cw_namespace = 'status'
 purpose_list = {'github.com': 'https://github.com',
-                'keencode.net': 'http://keencode.net'}
+                'bitbucket.org': 'https://bitbucket.org/'}
 result_list = []
 url = 'https://github.com'
 aws_region = 'eu-west-1'

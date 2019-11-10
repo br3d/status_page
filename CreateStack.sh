@@ -11,7 +11,7 @@ RELEASE_ID=$RANDOM
 CHANGE_SET_NAME="changeset-$RELEASE_ID"
 CHANGE_SET_TYPE="CREATE"
 
-#Packing code
+# Packing code
 # Preparing lambda dependencies
 pip3 install --target ./package requests jinja2
 cd package
@@ -30,7 +30,7 @@ aws s3 cp prober.py.zip s3://$CLOUD_FORMATION_RESOURCE_UPLOAD_BUCKET_NAME/$STACK
 echo "Create change set: $CHANGE_SET_NAME"
 aws cloudformation create-change-set \
     --change-set-name $CHANGE_SET_NAME \
-	--change-set-type $CHANGE_SET_TYPE \
+    --change-set-type $CHANGE_SET_TYPE \
     --profile $AWS_PROFILE_NAME \
     --region $AWS_REGION \
     --stack-name $STACK_NAME \
@@ -41,7 +41,7 @@ aws cloudformation create-change-set \
 echo "Wait for change set to be created: $CHANGE_SET_NAME"
 aws cloudformation wait change-set-create-complete --stack-name=$STACK_NAME --change-set-name=$CHANGE_SET_NAME --profile=$AWS_PROFILE_NAME --region=$AWS_REGION
 
-read -p "Press any key"
+read -p "Press any key for apply Changeset"
 
 echo "Execute change set: $CHANGE_SET_NAME"
 aws cloudformation execute-change-set --stack-name=$STACK_NAME --change-set-name=$CHANGE_SET_NAME --profile=$AWS_PROFILE_NAME --region=$AWS_REGION
