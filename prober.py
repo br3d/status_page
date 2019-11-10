@@ -8,15 +8,12 @@ import time
 import os
 
 cw_namespace = 'status'
-purpose_list = {'github.com': 'https://github.com',
-                'bitbucket.org': 'https://bitbucket.org/'}
 result_list = []
-url = 'https://github.com'
-aws_region = 'eu-west-1'
 
 report_name = 'index.html'
 status_template = 'static/template.html'
 report_bucket = os.environ['Bucket']
+purpose_list = os.environ['Purposes']
 
 
 class host_o():
@@ -75,14 +72,14 @@ def time_now():
 
 
 def lambda_handler(var, var2):
-    for purpose in purpose_list:
+    for purpose in purpose_list.split(','):
         item = host_o()
-        response = check_status(purpose_list[purpose])
+        item.name = purpose.split(';')[0]
+        item.url = purpose.split(';')[1]
+        response = check_status(item.url)
     # build CW metric
-        cw_report(cw_namespace, purpose, response.status_code)
-    # fill object fields
-        item.name = purpose
-        item.url = purpose_list[purpose]
+        cw_report(cw_namespace, item.name, response.status_code)
+    # fill object field status
         item.status = check_successful(response)
     # collect results
         result_list.append(item)

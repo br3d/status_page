@@ -14,8 +14,8 @@
     },
     "SiteList": {
       "Type": "String",
-      "Default": "github.com",
-      "Description": "Site list separated by semicolon"
+      "Default": "github.com;https://github.com,bitbucket.org;https://bitbucket.org",
+      "Description": "Site list separated by comma"
     },
     "CloudFormationBucketName": {
       "Type": "String",
@@ -167,14 +167,14 @@
         "Timeout": 300,
         "Environment": {
           "Variables": {
-            "SiteList": {
-              "Ref": "SiteList"
-            },
             "Env": {
               "Ref": "Env"
             },
             "Bucket": {
               "Ref": "S3ProberStatusPage"
+            },
+            "Purposes": {
+              "Ref": "SiteList"
             }
           }
         }
