@@ -2,6 +2,13 @@
   <head>
     <title>Status Page</title>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
     <style>
       .red_dot {
         height: 15px;
@@ -20,28 +27,30 @@
     </style>
   </head>
   <body>
-    <center>
-      Status Page
-      <table border="1">
-        <tr>
-          <td>Status</td>
-          <td>host</td>
-        </tr>
-        {% for host in hosts %}
-        <tr>
-          {% if host.status%}
-          <td><span class="green_dot"> </span></td>
-          <td>{{ host.url }}</td>
-          {% else %}
-          <td><span class="red_dot"> </span></td>
-          <td>{{ host.url }}</td>
-          {% endif %}
-        </tr>
-        {% endfor %}
+    <div class="container">
+      <h2>Status Page</h2>
+      <table class="table">
+        <thead>
+          <tr class="active">
+            <td>Status</td>
+            <td>host</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for host in hosts %}
+          <tr>
+            {% if host.status%}
+            <td><span class="green_dot"> </span></td>
+            <td>{{ host.url }}</td>
+            {% else %}
+            <td><span class="red_dot"> </span></td>
+            <td>{{ host.url }}</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
-
-      <br />
       Page was generated at {{ gtime }}
-    </center>
+    </div>
   </body>
 </html>
